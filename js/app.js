@@ -1,7 +1,7 @@
 // ===== Firebase Integration (Realtime Database v9) =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-import { FIREBASE_CONFIG } from "./config.js";
+import { FIREBASE_CONFIG, RAZORPAY_KEY } from "./config.js";
 
 const firebaseConfig = FIREBASE_CONFIG;
 
@@ -225,7 +225,6 @@ async function saveOrderToFirebase() {
   }
 }
 
-const RAZORPAY_KEY = '';
 
 function openRazorpay() {
   if (!RAZORPAY_KEY) {
