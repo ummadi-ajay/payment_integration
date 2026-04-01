@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>MakerWorks Lab | Secure Checkout</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#4f46e5",
+            "primary-dark": "#4338ca",
+            "secondary": "#a855f7",
+            "accent": "#06b6d4",
+            "surface": "#ffffff",
+            "on-surface": "#1a1a2e",
+            "on-surface-variant": "#64748b",
+            "border-color": "#e2e8f0",
+            "success": "#10b981",
+          },
+          fontFamily: { "sans": ["Inter", "sans-serif"] },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+            slideUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .step-section { display: none; }
+    .step-section.active { display: block; animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .step-active { background: linear-gradient(90deg, #4f46e5, #a855f7); }
+    .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
+    @media print {
+      body > *:not(#bill-printable-wrapper) { display: none; }
+      #bill-printable-wrapper { display: block !important; }
+      header, footer, .no-print { display: none !important; }
+      #bill-printable { box-shadow: none; border: none; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-slate-50 to-indigo-50 text-on-surface font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-border-color flex justify-between items-center px-6 md:px-8 h-16 md:h-20 w-full fixed top-0 z-50 shadow-sm">
+    <div class="flex items-center gap-2 md:gap-3">
+      <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+        <span class="material-symbols-outlined text-white text-base md:text-xl">hub</span>
+      </div>
+      <div>
+        <span class="text-lg md:text-xl font-black tracking-tight text-on-surface">MakerWorks</span>
+        <span class="block text-[0.5rem] md:text-[0.6rem] font-bold text-primary uppercase tracking-[0.15em] md:tracking-[0.2em] -mt-0.5 md:-mt-1">Lab · Secure Checkout</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-slate-400">
+      <span class="material-symbols-outlined text-success" style="font-variation-settings:'FILL' 1">lock</span>
+      <span class="text-xs font-bold text-slate-400 hidden sm:block">SSL Secured</span>
+    </div>
+  </header>
+
+  <div class="flex flex-1 pt-16 md:pt-20">
+    <main class="flex-1 p-4 md:p-10 flex flex-col items-center">
+      <div class="w-full max-w-4xl">
+
+        <!-- Progress Bar -->
+        <div class="grid grid-cols-3 gap-2 md:gap-4 w-full mb-8 md:mb-12 px-1">
+          <div class="flex flex-col gap-2 md:gap-3" id="prog-1">
+            <div class="h-1.5 w-full rounded-full bg-primary transition-all duration-500" id="prog-bar-1"></div>
+            <span class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.12em] md:tracking-[0.15em] font-bold text-primary">Step 1: Details</span>
+          </div>
+          <div class="flex flex-col gap-2 md:gap-3" id="prog-2">
+            <div class="h-1.5 w-full rounded-full bg-slate-200 transition-all duration-500" id="prog-bar-2"></div>
+            <span class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.12em] md:tracking-[0.15em] font-bold text-slate-400">Step 2: Payment</span>
+          </div>
+          <div class="flex flex-col gap-2 md:gap-3" id="prog-3">
+            <div class="h-1.5 w-full rounded-full bg-slate-200 transition-all duration-500" id="prog-bar-3"></div>
+            <span class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.12em] md:tracking-[0.15em] font-bold text-slate-400">Step 3: Bill</span>
+          </div>
+        </div>
+
+        <!-- ===== STEP 1: Details ===== -->
+        <section id="step-1" class="step-section active">
+          <div class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-border-color">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+              <div class="lg:col-span-7 space-y-6 md:space-y-8">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-md">
+                      <span class="material-symbols-outlined text-white">person</span>
+                    </div>
+                    <div>
+                      <h2 class="text-xl md:text-2xl font-bold tracking-tight text-on-surface">Customer Details</h2>
+                      <p class="text-on-surface-variant text-xs md:text-sm">Verify and confirm your information below.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <form id="customer-form" class="space-y-5">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="flex flex-col gap-2">
+                      <label class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Full Name</label>
+                      <input id="fullName" class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-4 py-3 text-on-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all" placeholder="Parent / Guardian Name" type="text" required/>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <label class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Email Address</label>
+                      <input id="email" class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-4 py-3 text-on-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all" placeholder="email@example.com" type="email" required/>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Phone Number</label>
+                    <input id="phone" class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-4 py-3 text-on-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all" placeholder="+91 XXXXX XXXXX" type="tel" required/>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Billing Address</label>
+                    <input id="address" class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-4 py-3 text-on-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all" placeholder="Full Address" type="text" required/>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3 border-t border-slate-100">
+                    <div class="flex flex-col gap-2">
+                      <label class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Company Name <span class="text-[0.6rem] font-medium text-slate-400 normal-case">(Optional)</span></label>
+                      <input id="companyName" class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-4 py-3 text-on-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all" placeholder="For B2B Billing" type="text" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <label class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">GST Number <span class="text-[0.6rem] font-medium text-slate-400 normal-case">(Optional)</span></label>
+                      <input id="gstNumber" class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-4 py-3 text-on-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all uppercase" placeholder="15-digit GSTIN" type="text" maxlength="15" />
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div class="lg:col-span-5 flex flex-col">
+                <div class="bg-gradient-to-br from-slate-50 to-indigo-50/50 rounded-2xl p-6 md:p-8 flex-1 border border-border-color flex flex-col">
+                  <h3 class="text-base font-bold mb-5 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-lg">receipt_long</span>
+                    Order Summary
+                  </h3>
+                  <div class="space-y-5 flex-1">
+                    <div class="flex flex-col gap-2">
+                      <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Enrollment Program</label>
+                      <select id="item" class="w-full bg-white border-2 border-border-color rounded-2xl px-4 py-3 text-on-surface appearance-none cursor-pointer focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all">
+                        <option value="Beginner Robotics (10 Classes)|9999">Beginner Level — ₹9,999</option>
+                        <option value="Intermediate Robotics (10 Classes)|14999">Intermediate Level — ₹14,999</option>
+                      </select>
+                    </div>
+
+                    <!-- Selected Program Info Badge -->
+                    <div id="program-info-badge" class="p-3 bg-primary/5 rounded-xl border border-primary/15 hidden">
+                      <p class="text-xs font-bold text-primary" id="program-info-text"></p>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 pt-5 border-t border-border-color">
+                    <div class="flex items-end justify-between mb-6">
+                      <div>
+                        <p class="text-[0.6rem] font-black uppercase tracking-[0.2em] text-slate-400">Total Amount</p>
+                        <h4 id="display-total" class="text-3xl md:text-4xl font-black tracking-tighter text-on-surface mt-1">₹9,999</h4>
+                        <p class="text-xs text-slate-400 mt-1">+ 18% GST applicable</p>
+                      </div>
+                    </div>
+                    <button id="btn-proceed" class="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-base md:text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                      Proceed to Payment
+                      <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                    <p class="text-center text-[10px] text-slate-400 mt-3">256-bit SSL encryption · Powered by Razorpay</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== STEP 2: Payment ===== -->
+        <section id="step-2" class="step-section">
+          <div class="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
+            <div class="flex-[1.5] w-full bg-white rounded-2xl md:rounded-3xl p-6 md:p-10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-border-color">
+              <h2 class="text-2xl md:text-3xl font-bold tracking-tight mb-8 text-on-surface">Order Summary</h2>
+              <div class="space-y-8 md:space-y-12">
+                <section>
+                  <h3 class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.15em] font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">person</span>Customer Information
+                  </h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                    <div><p class="text-xs text-slate-400 mb-1 font-bold">Full Name</p><p id="conf-name" class="font-semibold text-on-surface">—</p></div>
+                    <div><p class="text-xs text-slate-400 mb-1 font-bold">Email Address</p><p id="conf-email" class="font-semibold text-on-surface">—</p></div>
+                    <div class="md:col-span-2"><p class="text-xs text-slate-400 mb-1 font-bold">Billing Address</p><p id="conf-address" class="font-semibold text-on-surface">—</p></div>
+                  </div>
+                </section>
+
+                <section class="pt-6 md:pt-8 border-t border-border-color">
+                  <h3 class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.15em] font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">shopping_cart</span>Enrollment Details
+                  </h3>
+                  <div class="flex items-center justify-between p-4 md:p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/15">
+                    <div class="flex items-center gap-3 md:gap-4">
+                      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-lg">
+                        <span class="material-symbols-outlined text-lg md:text-xl">rocket_launch</span>
+                      </div>
+                      <div>
+                        <p id="conf-item-name" class="font-bold text-base md:text-lg text-on-surface">—</p>
+                        <p id="conf-item-qty" class="text-xs text-slate-400">1 enrollment</p>
+                      </div>
+                    </div>
+                    <p id="conf-item-price" class="font-black text-primary text-lg">₹0</p>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            <div class="flex-1 w-full space-y-4 md:space-y-6">
+              <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-border-color shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)]">
+                <h3 class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.15em] font-bold text-primary mb-6 md:mb-8 text-center flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-sm">calculate</span>Financial Overview
+                </h3>
+                <div class="space-y-3 md:space-y-4 mb-6 md:mb-10">
+                  <div class="flex justify-between items-center text-sm font-medium py-2 border-b border-slate-50">
+                    <span class="text-slate-400">Program Fee</span>
+                    <span id="conf-subtotal" class="font-bold">₹0</span>
+                  </div>
+                  <div class="flex justify-between items-center text-sm font-medium py-2 border-b border-slate-50">
+                    <span class="text-slate-400">GST (18%)</span>
+                    <span id="conf-tax" class="font-bold">₹0</span>
+                  </div>
+                  <div class="pt-3 md:pt-4 mt-2 md:mt-4 text-center bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-4 md:p-5">
+                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-[0.15em] font-bold text-primary mb-1 md:mb-2">Total Amount Due</p>
+                    <p id="conf-grand-total" class="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">₹0</p>
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <button id="btn-pay" class="w-full py-4 md:py-5 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-base md:text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">lock</span>
+                    Pay Now — Secure
+                  </button>
+                  <div class="text-center">
+                    <button id="btn-back" class="text-sm font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-2 mx-auto justify-center py-2">
+                      <span class="material-symbols-outlined text-base">arrow_back</span>
+                      Go Back & Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-start gap-3">
+                <span class="material-symbols-outlined text-emerald-500 text-lg mt-0.5" style="font-variation-settings:'FILL' 1">verified_user</span>
+                <p class="text-xs text-emerald-700 font-medium leading-relaxed">Your payment is secured with 256-bit SSL. MakerWorks does not store your card details.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== STEP 3: Bill ===== -->
+        <section id="step-3" class="step-section">
+          <div class="text-center mb-8 md:mb-12">
+            <div class="mb-4 md:mb-6 inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-emerald-100 border-2 border-emerald-200 shadow-lg shadow-emerald-100">
+              <span class="material-symbols-outlined text-4xl md:text-5xl text-emerald-500" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <h2 class="text-3xl md:text-5xl font-black tracking-tight text-on-surface mb-2">Payment Successful!</h2>
+            <p class="text-slate-500 font-medium text-sm md:text-base">Your enrollment is confirmed. Your bill has been generated below.</p>
+          </div>
+
+          <div id="bill-printable-wrapper" class="flex justify-center w-full">
+            <div id="bill-printable" class="w-full max-w-xl bg-white p-8 md:p-12 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-border-color mb-8 md:mb-12 text-slate-800 font-sans relative overflow-hidden">
+              <!-- Decorative Top Border -->
+              <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary to-secondary"></div>
+
+              <div class="text-center mb-10 mt-4">
+                <div class="mx-auto w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center mb-4">
+                  <span class="material-symbols-outlined text-white text-xl">hub</span>
+                </div>
+                <h1 class="text-3xl font-black mb-2 tracking-tight text-slate-900">MakerWorks Lab</h1>
+                <p class="text-xs text-slate-500 leading-relaxed">G-19, Express Zone Mall, Malad East, Mumbai - 400097</p>
+                <p class="text-xs text-slate-500 mb-6">GSTIN: 27ACEFM6288Q1Z9 | Phone: +91 91371 14223</p>
+                <div class="inline-block bg-emerald-50 text-emerald-700 font-bold uppercase tracking-widest text-[10px] px-4 py-1.5 rounded-full border border-emerald-200">
+                  Payment Receipt
+                </div>
+              </div>
+
+              <div class="flex justify-between items-end border-b border-slate-100 pb-6 mb-6">
+                <div>
+                  <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Receipt No</p>
+                  <p id="bill-number" class="font-bold text-slate-800">BILL-2026-00001</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Date</p>
+                  <p id="bill-date" class="font-bold text-slate-800">—</p>
+                </div>
+              </div>
+
+              <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="text-[10px] text-primary uppercase tracking-widest font-bold mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span> Billed To</p>
+                <p id="bill-name" class="font-bold text-lg text-slate-900 mb-1">—</p>
+                <p id="bill-company" class="font-bold text-slate-700 text-sm hidden"></p>
+                <p id="bill-gst" class="text-xs text-slate-600 font-medium hidden mb-2">GSTIN: <span id="bill-gst-val"></span></p>
+                <p id="bill-address" class="text-sm text-slate-600 leading-relaxed">—</p>
+                <div class="mt-3 flex flex-col gap-1 text-sm text-slate-500">
+                  <p><span class="font-medium mr-2">✉</span> <span id="bill-email">—</span></p>
+                  <p><span class="font-medium mr-2">☏</span> <span id="bill-phone">—</span></p>
+                </div>
+              </div>
+
+              <table class="w-full mb-6">
+                <tbody id="bill-items" class="divide-y divide-slate-100">
+                  <!-- Injected by JS -->
+                </tbody>
+              </table>
+
+              <div class="pt-4">
+                <div class="flex justify-between items-center py-2 text-sm">
+                  <span class="text-slate-500 font-medium">Subtotal</span>
+                  <span id="bill-subtotal" class="font-bold text-slate-700">₹0</span>
+                </div>
+                <div class="flex justify-between items-center py-2 text-sm">
+                  <span class="text-slate-500 font-medium">GST (18%)</span>
+                  <span id="bill-tax" class="font-bold text-slate-700">₹0</span>
+                </div>
+                <div class="flex justify-between items-center py-5 mt-4 border-t border-b border-slate-200 bg-slate-50/50 -mx-8 px-8">
+                  <span class="font-black text-sm uppercase tracking-widest text-slate-500">Total Paid</span>
+                  <span id="bill-grand-total" class="font-black text-3xl text-primary">₹0</span>
+                </div>
+                <p class="text-[10px] text-slate-400 text-center uppercase tracking-widest mt-6">Total (in words): <span id="bill-words" class="font-bold text-slate-600">RUPEES ONLY</span></p>
+              </div>
+
+              <div class="mt-10 text-center">
+                <div class="w-16 h-16 mx-auto bg-slate-50 rounded-xl flex items-center justify-center mb-4 text-slate-300">
+                  <span class="material-symbols-outlined text-3xl">verified</span>
+                </div>
+                <p class="font-bold text-slate-800 text-sm mb-1">Thank you for enrolling!</p>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">This is a computer-generated receipt and does not require a physical signature.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 mb-8 md:mb-12 justify-center no-print">
+            <button id="btn-print" class="px-6 md:px-8 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-sm shadow-md shadow-primary/25 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-lg md:text-xl">print</span>
+              Print Bill
+            </button>
+            <button id="btn-new" class="px-6 md:px-8 py-3 md:py-4 rounded-2xl bg-white border-2 border-border-color text-on-surface font-bold text-sm hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-lg md:text-xl">add</span>
+              New Enrollment
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="no-print mt-auto w-full py-8 md:py-12 bg-white border-t border-border-color flex flex-col items-center gap-4 md:gap-6">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-xs">hub</span>
+      </div>
+      <span class="font-black text-sm text-slate-700">MakerWorks <span class="text-primary">Lab</span></span>
+    </div>
+    <div class="flex gap-6 md:gap-8">
+      <a class="text-[0.65rem] md:text-[0.75rem] font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors" href="#">Privacy Policy</a>
+      <a class="text-[0.65rem] md:text-[0.75rem] font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors" href="#">Terms of Service</a>
+    </div>
+    <p class="text-[0.65rem] md:text-[0.75rem] font-bold uppercase tracking-widest text-slate-300">© 2026 MakerWorks Lab LLP. All Rights Reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
