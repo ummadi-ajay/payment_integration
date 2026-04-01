@@ -1,16 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { FIREBASE_CONFIG } from "./config.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "paymentgateway-fc2f0.firebaseapp.com",
-  projectId: "paymentgateway-fc2f0",
-  databaseURL: "https://paymentgateway-fc2f0-default-rtdb.firebaseio.com/",
-  storageBucket: "paymentgateway-fc2f0.firebasestorage.app",
-  messagingSenderId: "860303578499",
-  appId: "1:860303578499:web:cea14b4ba4db6a546852b6",
-  measurementId: "G-361ECBZ3F9"
-};
+const firebaseConfig = FIREBASE_CONFIG;
 
 let db = null;
 try {
@@ -34,10 +26,10 @@ function calculatePrice(program, hours, hasKit = false, hasMonth = false) {
   if (program && PRICING[program]) {
     total = PRICING[program][hours] || PRICING[program][2];
   }
-  
+
   if (hasKit) total += PRICING.TINKERING_KIT;
   if (hasMonth) total += PRICING.EXPERIMENT_MONTH;
-  
+
   return total;
 }
 
@@ -50,13 +42,13 @@ function updatePriceDisplay() {
   const selectedHours = document.querySelector('input[name="tinkeringHours"]:checked');
   const hasKit = document.getElementById('check-kit')?.checked || false;
   const hasMonth = document.getElementById('check-month')?.checked || false;
-  
+
   const program = selectedProgram ? selectedProgram.value : null;
   const hours = selectedHours ? parseInt(selectedHours.value) : 2;
-  
+
   const price = calculatePrice(program, hours, hasKit, hasMonth);
   const classes = CLASS_MAPPING[hours] || 10;
-  
+
   const summaryProgram = document.getElementById('summaryProgram');
   const summaryClasses = document.getElementById('summaryClasses');
   const summaryPrice = document.getElementById('summaryPrice');
@@ -124,7 +116,7 @@ function suggestProgramFromGrade(grade) {
   const gradeNum = parseInt(grade);
   let suggestedProgram = null;
   let hint = '';
-  
+
   // Logical allotment
   if (gradeNum >= 3 && gradeNum <= 5) {
     suggestedProgram = 'Beginner';
@@ -144,7 +136,7 @@ function suggestProgramFromGrade(grade) {
   const gradeSelectHintText = document.getElementById('gradeSelectHintText');
   const gradeHint = document.getElementById('gradeHint');
   const gradeHintText = document.getElementById('gradeHintText');
-  
+
   // Update select-level hint
   if (gradeSelectHint && gradeSelectHintText) {
     if (hint) {
@@ -164,7 +156,7 @@ function suggestProgramFromGrade(grade) {
       gradeHint.classList.add('hidden');
     }
   }
-  
+
   if (suggestedProgram) {
     const radio = document.querySelector(`input[name="programDivision"][value="${suggestedProgram}"]`);
     if (radio) {
@@ -172,11 +164,11 @@ function suggestProgramFromGrade(grade) {
       // Show appropriate badge
       const badge = document.getElementById(`badge-${suggestedProgram.toLowerCase()}`);
       if (badge) badge.classList.remove('hidden');
-      
+
       radio.dispatchEvent(new Event('change'));
     }
   }
-  
+
   updatePriceDisplay();
 }
 
@@ -190,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const preview = document.getElementById('photoPreview');
       const photoIcon = document.getElementById('photoIcon');
       const photoText = document.getElementById('photoText');
-      
+
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -230,14 +222,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Setup progress tracking
   const requiredFields = [
-    'studentName', 'dob', 'schoolName', 'studyGrade', 
+    'studentName', 'dob', 'schoolName', 'studyGrade',
     'parentName', 'parentPhone', 'email', 'address',
     'expRobotics', 'expProgramming', 'exp3D'
   ];
 
   function updateFormProgress() {
     let filled = 0;
-    
+
     // Check text/selects
     requiredFields.forEach(id => {
       const el = document.getElementById(id);
@@ -246,21 +238,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check program radios
     if (document.querySelector('input[name="programDivision"]:checked')) filled++;
-    
+
     // Total steps (11 fields + 1 program)
     const total = requiredFields.length + 1;
     const progress = (filled / total) * 100;
-    
+
     const fill = document.getElementById('progressFill');
     if (fill) fill.style.width = `${progress}%`;
   }
 
   // Attach listeners for progress
   [...requiredFields, 'programDivision'].forEach(idOrName => {
-    const els = idOrName === 'programDivision' 
+    const els = idOrName === 'programDivision'
       ? document.querySelectorAll(`input[name="${idOrName}"]`)
       : [document.getElementById(idOrName)];
-      
+
     els.forEach(el => {
       if (el) {
         el.addEventListener('input', updateFormProgress);
@@ -272,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize
   updatePriceDisplay();
   updateFormProgress();
-  
+
   // Handle mobile scroll
   window.dispatchEvent(new Event('scroll'));
 
@@ -290,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
           let height = img.height;
           const MAX_WIDTH = 800;
           const MAX_HEIGHT = 800;
-          
+
           if (width > height) {
             if (width > MAX_WIDTH) {
               height *= MAX_WIDTH / width;
@@ -315,11 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const form = document.getElementById('enrollment-form');
-  
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const submitBtn = document.getElementById('btn-submit');
       submitBtn.innerHTML = `<span class="material-symbols-outlined animate-spin text-xl">progress_activity</span> Processing...`;
       submitBtn.disabled = true;
@@ -332,19 +324,19 @@ document.addEventListener('DOMContentLoaded', () => {
           console.error("Failed to parse image file", err);
         }
       }
-      
+
       const selectedProgram = document.querySelector('input[name="programDivision"]:checked');
       const selectedHours = document.querySelector('input[name="tinkeringHours"]:checked');
       const selectedFreq = document.querySelector('input[name="paymentFreq"]:checked');
-      
+
       const programName = selectedProgram ? selectedProgram.value : '';
       const hours = selectedHours ? parseInt(selectedHours.value) : 2;
       const freq = selectedFreq ? selectedFreq.value : 'Quarterly';
-      
+
       const hasKit = document.getElementById('check-kit')?.checked || false;
       const hasMonth = document.getElementById('check-month')?.checked || false;
       const totalPrice = calculatePrice(programName, hours, hasKit, hasMonth);
-      
+
       const enrollmentData = {
         studentName: document.getElementById('studentName').value.trim(),
         dob: document.getElementById('dob').value,
@@ -370,13 +362,13 @@ document.addEventListener('DOMContentLoaded', () => {
         totalPrice: totalPrice,
         timestamp: serverTimestamp()
       };
-      
+
       try {
         sessionStorage.setItem('pendingEnrollment', JSON.stringify(enrollmentData));
       } catch (error) {
         console.error("Error saving to session storage:", error);
       }
-      
+
       let itemDescription = programName ? `${programName} Level` : "";
       if (hasKit && hasMonth) itemDescription += (itemDescription ? " + " : "") + "Kit & Exp Month";
       else if (hasKit) itemDescription += (itemDescription ? " + " : "") + "Tinkering Kit";
@@ -395,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tshirt: enrollmentData.tshirt,
         freq: freq
       });
-      
+
       window.location.href = `checkout.html?${params.toString()}`;
     });
   }

@@ -1,17 +1,9 @@
 // ===== Firebase Integration (Realtime Database v9) =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { FIREBASE_CONFIG } from "./config.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "paymentgateway-fc2f0.firebaseapp.com",
-  projectId: "paymentgateway-fc2f0",
-  databaseURL: "https://paymentgateway-fc2f0-default-rtdb.firebaseio.com/",
-  storageBucket: "paymentgateway-fc2f0.firebasestorage.app",
-  messagingSenderId: "860303578499",
-  appId: "1:860303578499:web:cea14b4ba4db6a546852b6",
-  measurementId: "G-361ECBZ3F9"
-};
+const firebaseConfig = FIREBASE_CONFIG;
 
 let db = null;
 try {
