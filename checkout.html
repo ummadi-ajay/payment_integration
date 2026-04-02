@@ -43,10 +43,21 @@
     .step-active { background: linear-gradient(90deg, #4f46e5, #a855f7); }
     .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
     @media print {
-      body > *:not(#bill-printable-wrapper) { display: none; }
-      #bill-printable-wrapper { display: block !important; }
-      header, footer, .no-print { display: none !important; }
-      #bill-printable { box-shadow: none; border: none; page-break-inside: avoid; }
+      body { background: white !important; }
+      header, footer, .no-print, #step-1, #step-2, #customer-form, .prog-bar-container { display: none !important; }
+      .flex-1.pt-16 { padding-top: 0 !important; }
+      main { padding: 0 !important; }
+      #step-3 { display: block !important; }
+      #bill-printable-wrapper { display: block !important; padding: 0 !important; }
+      #bill-printable { 
+        box-shadow: none !important; 
+        border: none !important; 
+        width: 100% !important; 
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 2rem !important;
+      }
+      #bill-printable-wrapper .absolute.top-0 { display: none !important; }
     }
   </style>
 </head>
@@ -74,7 +85,7 @@
       <div class="w-full max-w-4xl">
 
         <!-- Progress Bar -->
-        <div class="grid grid-cols-3 gap-2 md:gap-4 w-full mb-8 md:mb-12 px-1">
+        <div class="grid grid-cols-3 gap-2 md:gap-4 w-full mb-8 md:mb-12 px-1 no-print">
           <div class="flex flex-col gap-2 md:gap-3" id="prog-1">
             <div class="h-1.5 w-full rounded-full bg-primary transition-all duration-500" id="prog-bar-1"></div>
             <span class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.12em] md:tracking-[0.15em] font-bold text-primary">Step 1: Details</span>
