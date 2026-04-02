@@ -43,21 +43,49 @@
     .step-active { background: linear-gradient(90deg, #4f46e5, #a855f7); }
     .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
     @media print {
-      body { background: white !important; }
-      header, footer, .no-print, #step-1, #step-2, #customer-form, .prog-bar-container { display: none !important; }
-      .flex-1.pt-16 { padding-top: 0 !important; }
-      main { padding: 0 !important; }
-      #step-3 { display: block !important; }
-      #bill-printable-wrapper { display: block !important; padding: 0 !important; }
-      #bill-printable { 
-        box-shadow: none !important; 
-        border: none !important; 
-        width: 100% !important; 
+      /* Hide all elements by default during print */
+      body * {
+        visibility: hidden !important;
+      }
+      /* Explicitly show the bill and all its children */
+      #bill-printable-wrapper, 
+      #bill-printable-wrapper *,
+      #bill-printable,
+      #bill-printable * {
+        visibility: visible !important;
+      }
+      /* Reset layout for the bill to be at the top left of the page */
+      #bill-printable-wrapper {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      #bill-printable {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
         max-width: none !important;
         margin: 0 !important;
         padding: 2rem !important;
       }
-      #bill-printable-wrapper .absolute.top-0 { display: none !important; }
+      /* Force background colors and images to print */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Hide the decorative top border during print */
+      #bill-printable .absolute.top-0 {
+        display: none !important;
+      }
+      /* Hide action buttons if they somehow remain visible */
+      .no-print, button, header, footer {
+        display: none !important;
+      }
     }
   </style>
 </head>
