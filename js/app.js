@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
 import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-import { FIREBASE_CONFIG, RAZORPAY_KEY } from "./config.js";
+import { FIREBASE_CONFIG, RAZORPAY_KEY } from "./config.js?v=2";
 
 const firebaseConfig = FIREBASE_CONFIG;
 
