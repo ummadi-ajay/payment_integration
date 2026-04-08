@@ -9,4 +9,7 @@ export const FIREBASE_CONFIG = {
   measurementId: "G-361ECBZ3F9"
 };
 
-export const RAZORPAY_KEY = '';
+export const RAZORPAY_KEY = 'rzp_live_SavwhqeK4dfxMo';
+// The Secret Key should NOT be exposed on the frontend.
+// Keep it safe for backend use: O8ezOulvEAwM3u3526gdbwKi
+

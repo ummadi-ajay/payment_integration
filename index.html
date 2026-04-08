@@ -460,11 +460,8 @@
               </label>
               <select id="country" required
                 class="w-full bg-slate-50/80 border-2 border-transparent rounded-2xl px-5 py-4 text-on-surface focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all appearance-none cursor-pointer">
-                <option value="" disabled selected>Select country</option>
-                <option value="India">India</option>
-                <option value="US">United States</option>
-                <option value="UK">United Kingdom</option>
-                <option value="Other">Other</option>
+                <option value="India" selected>India</option>
+                <option value="Other">Other (International)</option>
               </select>
             </div>
           </div>
@@ -649,7 +646,7 @@
               </div>
             </div>
 
-            <p class="text-[10px] md:text-sm text-white/30 mt-6 text-center italic tracking-wide">* All prices exclude 18% GST · Billed Quarterly by default</p>
+            <p class="text-[10px] md:text-sm text-white/30 mt-6 text-center italic tracking-wide">* All prices exclude 18% GST · Minimum billing: Quarterly</p>
           </div>
 
           <!-- Program Selection -->
@@ -845,7 +842,7 @@
             <div class="grid grid-cols-3 gap-2 md:gap-4">
               <label
                 class="relative flex flex-col items-center p-3 md:p-6 rounded-2xl border-2 border-slate-200 bg-white hover:border-primary hover:bg-primary/5 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10">
-                <input type="radio" name="paymentFreq" value="Quarterly" class="hidden peer" checked>
+                <input type="radio" name="paymentFreq" value="Quarterly" class="hidden peer" required>
                 <span
                   class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-100 flex items-center justify-center text-lg md:text-xl font-black mb-2 peer-checked:bg-primary peer-checked:text-white transition-all">Q</span>
                 <span class="font-bold text-slate-800 text-xs md:text-sm">Quarterly</span>
@@ -854,7 +851,7 @@
 
               <label
                 class="relative flex flex-col items-center p-3 md:p-6 rounded-2xl border-2 border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50 cursor-pointer transition-all has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
-                <input type="radio" name="paymentFreq" value="Half-Yearly" class="hidden peer">
+                <input type="radio" name="paymentFreq" value="Half-Yearly" class="hidden peer" required>
                 <span
                   class="absolute top-1 right-1 md:top-3 md:right-3 bg-emerald-100 text-emerald-700 text-[8px] md:text-xs font-bold px-1 md:px-2 py-0.5 md:py-1 rounded-full">5%
                   OFF</span>
@@ -866,7 +863,7 @@
 
               <label
                 class="relative flex flex-col items-center p-3 md:p-6 rounded-2xl border-2 border-slate-200 bg-white hover:border-violet-500 hover:bg-violet-50 cursor-pointer transition-all has-[:checked]:border-violet-500 has-[:checked]:bg-violet-50">
-                <input type="radio" name="paymentFreq" value="Yearly" class="hidden peer">
+                <input type="radio" name="paymentFreq" value="Yearly" class="hidden peer" required>
                 <span
                   class="absolute top-1 right-1 md:top-3 md:right-3 bg-violet-100 text-violet-700 text-[8px] md:text-xs font-bold px-1 md:px-2 py-0.5 md:py-1 rounded-full">10%
                   OFF</span>
@@ -911,7 +908,7 @@
     </button>
   </div>
 
-  <script type="module" src="js/enrollment.js"></script>
+  <script type="module" src="js/enrollment.js?v=04021338"></script>
 </body>
 
 </html>

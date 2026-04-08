@@ -19,7 +19,7 @@ let orderData = {
   itemName: '', unitPrice: 0,
   subtotal: 0, tax: 0, grandTotal: 0,
   paymentId: '', billNumber: '',
-  tshirt: '', paymentFreq: 'Quarterly'
+  tshirt: '', paymentFreq: 'Quarterly', country: 'India'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,16 +41,34 @@ document.addEventListener('DOMContentLoaded', () => {
     orderData.address = urlParams.get('address') || '';
     orderData.companyName = urlParams.get('company') || '';
     orderData.gstNumber = urlParams.get('gst') || '';
+    orderData.country = urlParams.get('country') || 'India';
     
     if (document.getElementById('address')) document.getElementById('address').value = orderData.address;
     if (document.getElementById('companyName')) document.getElementById('companyName').value = orderData.companyName;
     if (document.getElementById('gstNumber')) document.getElementById('gstNumber').value = orderData.gstNumber;
 
     if (prog && amount > 0) {
-      const classes = hours === 2 ? 10 : hours === 3 ? 15 : 20;
-      const itemTitle = prog.includes('Level') || prog.includes('Kit') || prog.includes('Month')
-        ? `${prog} (${classes} Classes)`
-        : `${prog} Level Robotics (${classes} Classes)`;
+      let months = 1;
+      const isFullProgram = prog.includes('Level');
+      
+      if (isFullProgram) {
+        if (orderData.paymentFreq === 'Quarterly') months = 3;
+        else if (orderData.paymentFreq === 'Half-Yearly') months = 6;
+        else if (orderData.paymentFreq === 'Yearly') months = 12;
+      }
+
+      const baseClassesPerMonth = (hours === 3 ? 15 : hours === 4 ? 20 : 10);
+      const totalClasses = baseClassesPerMonth * months;
+      
+      let itemTitle = "";
+      if (isFullProgram) {
+        itemTitle = `${prog} (${totalClasses} Classes)`;
+      } else {
+        // Handle standalone Kit or Experiment Month
+        itemTitle = prog;
+        if (prog.includes('Month')) itemTitle += ` (10 Sessions)`;
+      }
+      
       const itemValue = `${itemTitle}|${amount}`;
 
       const itemSelect = document.getElementById('item');

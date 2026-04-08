@@ -2,30 +2,42 @@ const fs = require('fs');
 
 async function parseTally() {
   const html = fs.readFileSync('tally_utf8.txt', 'utf8');
-  const match = html.match(/window\.__TALLY_FORM__\s*=\s*(\{.*?\})\s*;/);
+  // Look for Next.js pre-loaded data
+  const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/);
   if (match) {
-    const form = JSON.parse(match[1]);
-    console.log("=== TALLY FORM FIELDS ===");
-    form.blocks.forEach(b => {
-      if (b.payload && b.payload.label) {
-        console.log(`[${b.type}] ${b.payload.label}`);
-      }
-    });
-  } else {
-    // try finding blocks arrays directly
-    const matchBlocks = html.match(/"blocks":(\[.*?\]),"translations"/);
-    if (matchBlocks) {
-      const blocks = JSON.parse(matchBlocks[1]);
+    try {
+      const data = JSON.parse(match[1]);
+      const blocks = data.props.pageProps.blocks;
+      const logic = data.props.pageProps.blocks.filter(b => b.type === 'CONDITIONAL_LOGIC');
+      
       console.log("=== TALLY FORM FIELDS ===");
       blocks.forEach(b => {
-        if (b.payload && b.payload.label) {
-          console.log(`[${b.type}] ${b.payload.label}`);
+        if (b.payload && b.payload.text) {
+          console.log(`[${b.type}] ${b.payload.text}`);
+        } else if (b.payload && b.payload.title) {
+          console.log(`[${b.type}] ${b.payload.title}`);
         }
       });
-    } else {
-      console.log("Could not find Tally form blocks in HTML.");
+
+      console.log("\n=== TALLY PRICING LOGIC ===");
+      logic.forEach(l => {
+        const conds = l.payload.conditionals.map(c => `${c.payload.field.title} ${c.payload.comparison} ${c.payload.value}`).join(' AND ');
+        const actions = l.payload.actions.map(a => {
+            if (a.type === 'CALCULATE') {
+                return `SET ${a.payload.calculate.field.title} = ${a.payload.calculate.value}`;
+            }
+            return a.type;
+        }).join(', ');
+        console.log(`IF ${conds} THEN ${actions}`);
+      });
+
+    } catch (e) {
+      console.error("Error parsing JSON:", e);
     }
+  } else {
+    console.log("Could not find __NEXT_DATA__ in HTML.");
   }
 }
 
 parseTally();
+

@@ -21,33 +21,59 @@ const PRICING = {
 
 const CLASS_MAPPING = { 2: 10, 3: 15, 4: 20 };
 
-function calculatePrice(program, hours, hasKit = false, hasMonth = false) {
-  let total = 0;
+function calculatePrice(program, hours, hasKit = false, hasMonth = false, freqMultiplier = 1, countryMultiplier = 1) {
+  let basePrice = 0;
   if (program && PRICING[program]) {
-    total = PRICING[program][hours] || PRICING[program][2];
+    basePrice = PRICING[program][hours] || PRICING[program][2];
   }
+
+  let total = (basePrice * freqMultiplier);
 
   if (hasKit) total += PRICING.TINKERING_KIT;
   if (hasMonth) total += PRICING.EXPERIMENT_MONTH;
 
-  return total;
+  return total * countryMultiplier;
 }
 
 function formatCurrency(amount) {
-  return '₹' + amount.toLocaleString('en-IN');
+  return '₹' + Math.round(amount).toLocaleString('en-IN');
 }
 
 function updatePriceDisplay() {
+  console.log("updatePriceDisplay running - Card baseline: Basic Monthly");
   const selectedProgram = document.querySelector('input[name="programDivision"]:checked');
   const selectedHours = document.querySelector('input[name="tinkeringHours"]:checked');
+  const selectedFreq = document.querySelector('input[name="paymentFreq"]:checked');
   const hasKit = document.getElementById('check-kit')?.checked || false;
   const hasMonth = document.getElementById('check-month')?.checked || false;
 
+  const countryEl = document.getElementById('country');
   const program = selectedProgram ? selectedProgram.value : null;
   const hours = selectedHours ? parseInt(selectedHours.value) : 2;
+  const freq = selectedFreq ? selectedFreq.value : 'Quarterly';
+  const country = countryEl ? countryEl.value : 'India';
 
-  const price = calculatePrice(program, hours, hasKit, hasMonth);
-  const classes = CLASS_MAPPING[hours] || 10;
+  // Multipliers
+  let freqMultiplier = 1;
+  let months = 1;
+
+  if (selectedFreq) {
+    if (freq === 'Quarterly') {
+      freqMultiplier = 3;
+      months = 3;
+    } else if (freq === 'Half-Yearly') {
+      freqMultiplier = 6 * 0.95; // 5% discount
+      months = 6;
+    } else if (freq === 'Yearly') {
+      freqMultiplier = 12 * 0.90; // 10% discount
+      months = 12;
+    }
+  }
+
+  const countryMultiplier = (country === 'Other') ? 1.5 : 1.0;
+  const price = calculatePrice(program, hours, hasKit, hasMonth, freqMultiplier, countryMultiplier);
+  const classesPerMonth = CLASS_MAPPING[hours] || 10;
+  const totalClasses = classesPerMonth * months;
 
   const summaryProgram = document.getElementById('summaryProgram');
   const summaryClasses = document.getElementById('summaryClasses');
@@ -70,7 +96,7 @@ function updatePriceDisplay() {
   }
 
   if (summaryClasses) {
-    summaryClasses.textContent = program ? `${classes} Classes` : (hasMonth ? "10 sessions" : "-");
+    summaryClasses.textContent = program ? `${totalClasses} Classes (${months} Months)` : (hasMonth ? "10 sessions" : "-");
   }
 
   if (summaryPrice) {
@@ -81,22 +107,24 @@ function updatePriceDisplay() {
   const mobilePrice = document.getElementById('mobileTotalPrice');
   if (mobilePrice) mobilePrice.textContent = formatCurrency(price);
 
-  // Update selection cards
-  const beginnerCardPrice = calculatePrice('Beginner', hours, false, false);
-  const intermediateCardPrice = calculatePrice('Intermediate', hours, false, false);
-  const classText = `for ${classes} classes`;
+  // Update selection cards (always show basic monthly price)
+  const beginnerCardPrice = calculatePrice('Beginner', hours, false, false, 1, countryMultiplier);
+  const intermediateCardPrice = calculatePrice('Intermediate', hours, false, false, 1, countryMultiplier);
+  const classPerMonth = CLASS_MAPPING[hours] || 10;
+  const cardClassText = `for ${classPerMonth} classes`;
+  const classText = `for ${totalClasses} classes`;
 
   const begPriceEl = document.getElementById('price-beginner');
   const intPriceEl = document.getElementById('price-intermediate');
   if (begPriceEl) {
     begPriceEl.textContent = formatCurrency(beginnerCardPrice);
     const label = begPriceEl.parentElement.querySelector('span:last-child');
-    if (label) label.textContent = classText;
+    if (label) label.textContent = cardClassText;
   }
   if (intPriceEl) {
     intPriceEl.textContent = formatCurrency(intermediateCardPrice);
     const label = intPriceEl.parentElement.querySelector('span:last-child');
-    if (label) label.textContent = classText;
+    if (label) label.textContent = cardClassText;
   }
 }
 
@@ -211,14 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Price update listeners
-  document.querySelectorAll('input[name="programDivision"], input[name="tinkeringHours"]').forEach(radio => {
+  document.querySelectorAll('input[name="programDivision"], input[name="tinkeringHours"], input[name="paymentFreq"]').forEach(radio => {
     radio.addEventListener('change', updatePriceDisplay);
   });
 
   const checkKit = document.getElementById('check-kit');
   const checkMonth = document.getElementById('check-month');
+  const countrySelect = document.getElementById('country');
   if (checkKit) checkKit.addEventListener('change', updatePriceDisplay);
   if (checkMonth) checkMonth.addEventListener('change', updatePriceDisplay);
+  if (countrySelect) countrySelect.addEventListener('change', updatePriceDisplay);
 
   // Setup progress tracking
   const requiredFields = [
@@ -248,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Attach listeners for progress
-  [...requiredFields, 'programDivision'].forEach(idOrName => {
+  [...requiredFields, 'programDivision', 'paymentFreq'].forEach(idOrName => {
     const els = idOrName === 'programDivision'
       ? document.querySelectorAll(`input[name="${idOrName}"]`)
       : [document.getElementById(idOrName)];
@@ -335,7 +365,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const hasKit = document.getElementById('check-kit')?.checked || false;
       const hasMonth = document.getElementById('check-month')?.checked || false;
-      const totalPrice = calculatePrice(programName, hours, hasKit, hasMonth);
+
+      const country = document.getElementById('country')?.value || 'India';
+
+      let freqMultiplier = 1;
+      if (freq === 'Quarterly') freqMultiplier = 3;
+      else if (freq === 'Half-Yearly') freqMultiplier = 6 * 0.95;
+      else if (freq === 'Yearly') freqMultiplier = 12 * 0.90;
+
+      const countryMultiplier = (country === 'Other') ? 1.5 : 1.0;
+      const totalPrice = calculatePrice(programName, hours, hasKit, hasMonth, freqMultiplier, countryMultiplier);
 
       const enrollmentData = {
         studentName: document.getElementById('studentName').value.trim(),
@@ -385,7 +424,8 @@ document.addEventListener('DOMContentLoaded', () => {
         hours: enrollmentData.tinkeringHours,
         amount: enrollmentData.totalPrice,
         tshirt: enrollmentData.tshirt,
-        freq: freq
+        freq: freq,
+        country: enrollmentData.country
       });
 
       window.location.href = `checkout.html?${params.toString()}`;
