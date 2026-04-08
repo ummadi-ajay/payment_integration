@@ -1,13 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
 import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 import { FIREBASE_CONFIG } from "./config.js";
 
 const firebaseConfig = FIREBASE_CONFIG;
 
 let db = null;
+let analytics = null;
 try {
   const app = initializeApp(firebaseConfig);
   db = getDatabase(app);
+  analytics = getAnalytics(app);
 } catch (error) {
   console.error("Firebase Initialization Error:", error);
 }
