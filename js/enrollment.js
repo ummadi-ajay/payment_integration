@@ -135,7 +135,7 @@ function updatePriceDisplay() {
 window.addEventListener('scroll', () => {
   const bar = document.getElementById('mobilePriceBar');
   if (bar) {
-    if (window.scrollY > 300) {
+    if (window.scrollY > 50) {
       bar.classList.remove('translate-y-full');
     } else {
       bar.classList.add('translate-y-full');
